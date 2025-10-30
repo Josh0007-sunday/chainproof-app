@@ -1,0 +1,65 @@
+{
+    "version": "1.0.0",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "tokenInfo": {
+        "mint": "2FKjWV4zh7AVsmXonL7AM9Lh9zfpcE3e1dCYejWvd5W8",
+        "name": "ChainProof Token",
+        "symbol": "CP",
+        "icon": "https://i.pinimg.com/1200x/b8/dc/25/b8dc25660dd0dcb8cb9094f3c62bff1e.jpg",
+        "website": "https://example.com",
+        "twitter": "https://twitter.com/example"
+    },
+    "riskAssessment": {
+        "riskScore": 37,
+        "riskLevel": "SAFE",
+        "detailedScores": {
+            "volumeScore": {
+                "score": 90
+            },
+            "holderScore": {
+                "score": 50
+            },
+            "liquidityScore": {
+                "score": 15
+            },
+            "ageScore": {
+                "score": 70
+            },
+            "verificationScore": {
+                "score": 0
+            },
+            "marketCapScore": {
+                "score": 5
+            }
+        }
+    },
+    "classification": {
+        "type": "UTILITY",
+        "utilityScore": 67,
+        "memeScore": 33,
+        "breakdown": {
+            "verification": {
+                "score": 85
+            },
+            "marketPresence": {
+                "score": 75
+            },
+            "tradingPatterns": {
+                "score": 65
+            },
+            "fundamentals": {
+                "score": 70
+            },
+            "community": {
+                "score": 60
+            },
+            "technical": {
+                "score": 80
+            }
+        }
+    },
+    "metadata": {
+        "analyzedBy": "ChainProof MU Checker",
+        "analysisVersion": "1.0.0"
+    }
+}

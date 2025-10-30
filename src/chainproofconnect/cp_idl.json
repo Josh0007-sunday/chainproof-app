@@ -1,0 +1,186 @@
+{
+    "version": "0.1.0",
+    "name": "token_registry",
+    "instructions": [
+        {
+            "name": "registerToken",
+            "accounts": [
+                {
+                    "name": "authority",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "mint",
+                    "isMut": false,
+                    "isSigner": false
+                },
+                {
+                    "name": "tokenEntry",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "symbol",
+                    "type": "string"
+                },
+                {
+                    "name": "ipfsHash",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "updateTokenEntry",
+            "accounts": [
+                {
+                    "name": "authority",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "tokenEntry",
+                    "isMut": true,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "symbol",
+                    "type": "string"
+                },
+                {
+                    "name": "ipfsHash",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "accounts": [
+        {
+            "name": "TokenEntry",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "authority",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "mint",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "name": "symbol",
+                        "type": "string"
+                    },
+                    {
+                        "name": "ipfsHash",
+                        "type": "string"
+                    },
+                    {
+                        "name": "timestamp",
+                        "type": "i64"
+                    },
+                    {
+                        "name": "bump",
+                        "type": "u8"
+                    }
+                ]
+            }
+        }
+    ],
+    "events": [
+        {
+            "name": "TokenRegistered",
+            "fields": [
+                {
+                    "name": "mint",
+                    "type": "publicKey",
+                    "index": false
+                },
+                {
+                    "name": "authority",
+                    "type": "publicKey",
+                    "index": false
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "index": false
+                },
+                {
+                    "name": "timestamp",
+                    "type": "i64",
+                    "index": false
+                }
+            ]
+        },
+        {
+            "name": "TokenUpdated",
+            "fields": [
+                {
+                    "name": "mint",
+                    "type": "publicKey",
+                    "index": false
+                },
+                {
+                    "name": "authority",
+                    "type": "publicKey",
+                    "index": false
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "index": false
+                },
+                {
+                    "name": "timestamp",
+                    "type": "i64",
+                    "index": false
+                }
+            ]
+        }
+    ],
+    "errors": [
+        {
+            "code": 6000,
+            "name": "NameTooLong",
+            "msg": "Name too long"
+        },
+        {
+            "code": 6001,
+            "name": "SymbolTooLong",
+            "msg": "Symbol too long"
+        },
+        {
+            "code": 6002,
+            "name": "IpfsHashTooLong",
+            "msg": "IPFS hash too long"
+        },
+        {
+            "code": 6003,
+            "name": "Unauthorized",
+            "msg": "Unauthorized"
+        }
+    ]
+}
