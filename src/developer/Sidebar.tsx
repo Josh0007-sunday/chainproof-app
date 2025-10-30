@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiHome, FiKey, FiCode, FiDollarSign, FiSettings, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome,  FiCode,  FiLogOut, FiMenu, FiX } from 'react-icons/fi';
 
 interface SidebarProps {
   onLogout: () => void;

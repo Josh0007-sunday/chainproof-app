@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { getProgram, getReadOnlyProgram } from '../chainproofconnect/useProgram';
 import { FaSearch } from 'react-icons/fa';
 
+//@ts-ignore
 interface AnalysisResult {
   success: boolean;
   tokenAddress: string;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/AuthContext';
 import authService, { type APIKey } from '../services/authService';
-import { FiCopy, FiTrash2, FiPlus, FiEye, FiEyeOff, FiRefreshCw } from 'react-icons/fi';
+import { FiCopy, FiTrash2, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import Sidebar from './Sidebar';
 
 const Dashboard: React.FC = () => {
