@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { useUserProfile } from '../chainproofconnect/useUserProfile';
-import { useStaking } from '../chainproofconnect/useStaking';
 import { useRewardPool } from '../chainproofconnect/useRewardPool';
 import { FaUser, FaHeart, FaTrophy, FaCheckCircle, FaClock, FaArrowRight } from 'react-icons/fa';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
@@ -22,8 +21,8 @@ export const ProtocolDashboard: React.FC = () => {
   const [rewardPool, setRewardPool] = useState<any>(null);
   const [usdcVaultBalance, setUsdcVaultBalance] = useState<number>(0);
 
-  const { createProfile, updateProfile, getUserProfile, profileExists } = useUserProfile();
-  const { initializeRewardPool, getRewardPool, getDeveloperRegistry, distributeRewards } = useRewardPool();
+  const { createProfile, updateProfile, getUserProfile } = useUserProfile();
+  const { initializeRewardPool, getRewardPool, distributeRewards } = useRewardPool();
 
   useEffect(() => {
     if (connected && publicKey) {

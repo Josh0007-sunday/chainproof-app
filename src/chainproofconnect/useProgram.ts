@@ -1,4 +1,4 @@
-import { Program, AnchorProvider, web3 } from '@coral-xyz/anchor';
+import { Program, AnchorProvider} from '@coral-xyz/anchor';
 import type { Idl } from '@coral-xyz/anchor';
 import { Connection, PublicKey, type Commitment } from '@solana/web3.js';
 import idlJson from './cp_idl.json';

@@ -22,7 +22,7 @@ export const ApiPlayground: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { connected, publicKey } = useWallet();
-  const { makePaymentRequest, isProcessing, error: paymentError } = useX402Payment();
+  const { makePaymentRequest, isProcessing } = useX402Payment();
   const { colors } = useTheme();
 
   const scrollToBottom = () => {
