@@ -1,4 +1,4 @@
-import { web3, BN } from '@coral-xyz/anchor';
+import { web3 } from '@coral-xyz/anchor';
 import { getProgram, getProvider, getReadOnlyProgram } from './useProgram';
 
 export const useUserProfile = () => {
