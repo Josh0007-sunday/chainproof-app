@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiHome,  FiCode,  FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome,  FiCode,  FiLogOut, FiMenu, FiX, FiDollarSign } from 'react-icons/fi';
 
 interface SidebarProps {
   onLogout: () => void;
@@ -13,6 +13,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const menuItems = [
     { path: '/developer/dashboard', icon: FiHome, label: 'Dashboard' },
     { path: '/developer/test', icon: FiCode, label: 'API Playground' },
+    { path: '/developer/x402-payment', icon: FiDollarSign, label: 'x402 Payments' },
     // Temporarily commented out until components are created
     // { path: '/developer/billing', icon: FiDollarSign, label: 'Billing' },
     // { path: '/developer/settings', icon: FiSettings, label: 'Settings' },
@@ -58,6 +59,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
           <Link
             key={item.path}
             to={item.path}
+            onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center gap-3 px-4 py-2 rounded-lg transition ${
               isActive(item.path) ? 'text-white' : 'text-gray-400 hover:bg-gray-700'
             }`}

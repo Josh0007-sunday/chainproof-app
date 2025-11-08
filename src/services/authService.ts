@@ -37,6 +37,8 @@ export interface APIKey {
     requestsPerMinute: number;
   };
   expiresAt: string | null;
+  paidUntil: string | null;
+  subscriptionAmount: number;
   createdAt: string;
   updatedAt: string;
 }

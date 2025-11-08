@@ -1,23 +1,29 @@
-import { Program, AnchorProvider } from '@project-serum/anchor';
+import { Program, AnchorProvider, web3 } from '@coral-xyz/anchor';
+import type { Idl } from '@coral-xyz/anchor';
 import { Connection, PublicKey, type Commitment } from '@solana/web3.js';
-import idl from './cp_idl.json';
+import idlJson from './cp_idl.json';
 
-const programID = new PublicKey('45gVbLLSYYcW254TFoJMXmfupM5dJaFxTLsbny2eqKWx');
+const idl = idlJson as unknown as Idl;
+// Program ID is now derived from the IDL address field
+const programID = new PublicKey(idl.address as string);
 const network = 'https://api.devnet.solana.com';
 const opts: { preflightCommitment: Commitment } = { preflightCommitment: 'processed' };
 
 export const getProvider = () => {
   if (typeof window === 'undefined' || !window.solana) {
-    console.warn('Solana wallet not found');
     return null;
   }
-  
+
+  // Don't check isConnected - just check if publicKey exists
+  if (!window.solana.publicKey) {
+    return null;
+  }
+
   try {
     const connection = new Connection(network, opts.preflightCommitment);
     const provider = new AnchorProvider(connection, window.solana as any, opts);
     return provider;
   } catch (error) {
-    console.error('Error creating provider:', error);
     return null;
   }
 };
@@ -25,13 +31,32 @@ export const getProvider = () => {
 export const getProgram = () => {
   const provider = getProvider();
   if (!provider) {
+    console.log('❌ No provider available');
     return null;
   }
 
   try {
-    const program = new Program(idl as any, programID, provider);
+    console.log('🔍 Creating program with:', {
+      programID: programID.toString(),
+      hasIdl: !!idl,
+      idlAddress: idl.address,
+      metadataAddress: (idl as any).metadata?.address
+    });
+
+    const program = new Program(idl, provider);
+    console.log('✅ Program created successfully, programId:', program.programId.toString());
+
+    // Verify the programId matches what we expect
+    if (program.programId.toString() !== programID.toString()) {
+      console.error('⚠️ Program ID mismatch!', {
+        expected: programID.toString(),
+        actual: program.programId.toString()
+      });
+    }
+
     return program;
   } catch (error) {
+    console.error('❌ Failed to create program:', error);
     return null;
   }
 };
@@ -47,11 +72,9 @@ export const getReadOnlyProgram = () => {
       signAllTransactions: async () => { throw new Error('Read-only mode'); },
     };
     const provider = new AnchorProvider(connection, dummyWallet as any, opts);
-    const program = new Program(idl as any, programID, provider);
+    const program = new Program(idl, provider);
     return program;
   } catch (error) {
     return null;
   }
 };
-
-export { programID };

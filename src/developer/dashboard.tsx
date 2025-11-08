@@ -4,6 +4,7 @@ import { useAuth } from '../services/AuthContext';
 import authService, { type APIKey } from '../services/authService';
 import { FiCopy, FiTrash2, FiPlus, FiRefreshCw } from 'react-icons/fi';
 import Sidebar from './Sidebar';
+import { CreateAPIKeyWithPayment } from '../component/CreateAPIKeyWithPayment';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -12,6 +13,7 @@ const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showNewKeyModal, setShowNewKeyModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
   const [newKeyValue, setNewKeyValue] = useState('');
   const [creatingKey, setCreatingKey] = useState(false);
@@ -165,6 +167,37 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  const getSubscriptionStatus = (key: APIKey) => {
+    if (!key.paidUntil) {
+      return { text: 'Free', color: '#6b7280', isExpired: false };
+    }
+
+    const expiryDate = new Date(key.paidUntil);
+    const now = new Date();
+    const isExpired = now > expiryDate;
+    const daysUntilExpiry = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (isExpired) {
+      return {
+        text: `Expired ${formatDate(key.paidUntil)}`,
+        color: '#ff6b6b',
+        isExpired: true
+      };
+    } else if (daysUntilExpiry <= 7) {
+      return {
+        text: `Expires ${formatDate(key.paidUntil)}`,
+        color: '#ffa500',
+        isExpired: false
+      };
+    } else {
+      return {
+        text: `Expires ${formatDate(key.paidUntil)}`,
+        color: '#35da9a',
+        isExpired: false
+      };
+    }
+  };
+
   const activeKeys = apiKeys.filter(k => k.isActive).length;
   const totalRequests = apiKeys.reduce((sum, k) => sum + k.usageCount, 0);
 
@@ -242,13 +275,22 @@ const Dashboard: React.FC = () => {
                     <h2 className="text-lg md:text-xl font-bold text-white">Your API Keys</h2>
                     <p className="text-sm text-gray-500 mt-1">Manage your API keys and monitor usage</p>
                   </div>
-                  <button
-                    onClick={() => setShowNewKeyModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition hover:opacity-80"
-                    style={{ borderColor: '#35da9a', borderWidth: '1px' }}
-                  >
-                    <FiPlus /> Create New Key
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowPaymentModal(true)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition hover:opacity-80"
+                      style={{ backgroundColor: '#35da9a', color: 'white' }}
+                    >
+                      <FiPlus /> Pay with USDC
+                    </button>
+                    <button
+                      onClick={() => setShowNewKeyModal(true)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition hover:opacity-80 text-white"
+                      style={{ borderColor: '#35da9a', borderWidth: '1px' }}
+                    >
+                      <FiPlus /> Free (Traditional)
+                    </button>
+                  </div>
                 </div>
 
                 {loading ? (
@@ -260,13 +302,22 @@ const Dashboard: React.FC = () => {
                   <div className="text-center py-12">
                     <div className="text-6xl mb-4 text-gray-600">🔑</div>
                     <p className="mb-4 text-gray-400">No API keys yet. Create one to get started!</p>
-                    <button
-                      onClick={() => setShowNewKeyModal(true)}
-                      className="px-6 py-2 rounded-lg font-semibold transition hover:opacity-80"
-                      style={{ borderColor: '#35da9a', borderWidth: '1px' }}
-                    >
-                      Create Your First Key
-                    </button>
+                    <div className="flex gap-3 justify-center">
+                      <button
+                        onClick={() => setShowPaymentModal(true)}
+                        className="px-6 py-2 rounded-lg font-semibold transition hover:opacity-80"
+                        style={{ backgroundColor: '#35da9a', color: 'white' }}
+                      >
+                        Pay with USDC
+                      </button>
+                      <button
+                        onClick={() => setShowNewKeyModal(true)}
+                        className="px-6 py-2 rounded-lg font-semibold transition hover:opacity-80 text-white"
+                        style={{ borderColor: '#35da9a', borderWidth: '1px' }}
+                      >
+                        Free (Traditional)
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -277,6 +328,7 @@ const Dashboard: React.FC = () => {
                           <tr>
                             <th scope="col" className="px-6 py-3">Name</th>
                             <th scope="col" className="px-6 py-3">Status</th>
+                            <th scope="col" className="px-6 py-3">Subscription</th>
                             <th scope="col" className="px-6 py-3">Usage</th>
                             <th scope="col" className="px-6 py-3">Last Used</th>
                             <th scope="col" className="px-6 py-3">Created</th>
@@ -284,86 +336,103 @@ const Dashboard: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {apiKeys.map((key) => (
-                            <tr key={key.id} className="border-b hover:bg-opacity-50 transition" style={{ borderColor: '#252538ff', backgroundColor: '#181824' }}>
-                              <td className="px-6 py-4 font-medium text-white">
-                                <div className="flex items-center gap-2">
-                                  <span>{key.name}</span>
-                                  {!key.isActive && (
-                                    <span className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">Revoked</span>
-                                  )}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4">
-                                <span style={{ color: key.isActive ? '#35da9a' : '#ff6b6b' }}>
-                                  {key.isActive ? 'Active' : 'Inactive'}
-                                </span>
-                              </td>
-                              <td className="px-6 py-4 text-gray-400">{key.usageCount.toLocaleString()} requests</td>
-                              <td className="px-6 py-4 text-gray-400">
-                                {key.lastUsed ? formatDateTime(key.lastUsed) : 'Never'}
-                              </td>
-                              <td className="px-6 py-4 text-gray-400">{formatDate(key.createdAt)}</td>
-                              <td className="px-6 py-4 text-right">
-                                <div className="flex justify-end gap-2">
-                                  <button
-                                    onClick={() => handleDeleteKey(key.id, key.name)}
-                                    className="p-2 hover:opacity-80 transition rounded"
-                                    style={{ color: '#ff6b6b' }}
-                                    title="Revoke key"
-                                  >
-                                    <FiTrash2 />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
+                          {apiKeys.map((key) => {
+                            const subscriptionStatus = getSubscriptionStatus(key);
+                            return (
+                              <tr key={key.id} className="border-b hover:bg-opacity-50 transition" style={{ borderColor: '#252538ff', backgroundColor: '#181824' }}>
+                                <td className="px-6 py-4 font-medium text-white">
+                                  <div className="flex items-center gap-2">
+                                    <span>{key.name}</span>
+                                    {!key.isActive && (
+                                      <span className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400">Revoked</span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span style={{ color: key.isActive ? '#35da9a' : '#ff6b6b' }}>
+                                    {key.isActive ? 'Active' : 'Inactive'}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span style={{ color: subscriptionStatus.color }}>
+                                    {subscriptionStatus.text}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 text-gray-400">{key.usageCount.toLocaleString()} requests</td>
+                                <td className="px-6 py-4 text-gray-400">
+                                  {key.lastUsed ? formatDateTime(key.lastUsed) : 'Never'}
+                                </td>
+                                <td className="px-6 py-4 text-gray-400">{formatDate(key.createdAt)}</td>
+                                <td className="px-6 py-4 text-right">
+                                  <div className="flex justify-end gap-2">
+                                    <button
+                                      onClick={() => handleDeleteKey(key.id, key.name)}
+                                      className="p-2 hover:opacity-80 transition rounded"
+                                      style={{ color: '#ff6b6b' }}
+                                      title="Revoke key"
+                                    >
+                                      <FiTrash2 />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
 
                     {/* Mobile Card View */}
                     <div className="md:hidden space-y-4">
-                      {apiKeys.map((key) => (
-                        <div key={key.id} className="rounded-lg p-4 border transition" style={{ backgroundColor: '#0e0d13', borderColor: '#252538ff' }}>
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <h3 className="font-medium text-white text-sm">{key.name}</h3>
-                              {!key.isActive && (
-                                <span className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 mt-1 inline-block">Revoked</span>
-                              )}
+                      {apiKeys.map((key) => {
+                        const subscriptionStatus = getSubscriptionStatus(key);
+                        return (
+                          <div key={key.id} className="rounded-lg p-4 border transition" style={{ backgroundColor: '#0e0d13', borderColor: '#252538ff' }}>
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h3 className="font-medium text-white text-sm">{key.name}</h3>
+                                {!key.isActive && (
+                                  <span className="text-xs px-2 py-1 rounded bg-red-500/20 text-red-400 mt-1 inline-block">Revoked</span>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => handleDeleteKey(key.id, key.name)}
+                                className="p-1.5 rounded"
+                                style={{ color: '#ff6b6b' }}
+                                title="Revoke key"
+                              >
+                                <FiTrash2 size={16} />
+                              </button>
                             </div>
-                            <button
-                              onClick={() => handleDeleteKey(key.id, key.name)}
-                              className="p-1.5 rounded"
-                              style={{ color: '#ff6b6b' }}
-                              title="Revoke key"
-                            >
-                              <FiTrash2 size={16} />
-                            </button>
+                            <div className="grid grid-cols-2 gap-3 text-xs">
+                              <div>
+                                <p className="text-gray-500 mb-1">Status</p>
+                                <span style={{ color: key.isActive ? '#35da9a' : '#ff6b6b' }}>
+                                  {key.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 mb-1">Subscription</p>
+                                <span style={{ color: subscriptionStatus.color }}>
+                                  {subscriptionStatus.text}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 mb-1">Usage</p>
+                                <p className="text-gray-400">{key.usageCount} requests</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 mb-1">Last Used</p>
+                                <p className="text-gray-400">{key.lastUsed ? formatDate(key.lastUsed) : 'Never'}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-500 mb-1">Created</p>
+                                <p className="text-gray-400">{formatDate(key.createdAt)}</p>
+                              </div>
+                            </div>
                           </div>
-                          <div className="grid grid-cols-2 gap-3 text-xs">
-                            <div>
-                              <p className="text-gray-500 mb-1">Status</p>
-                              <span style={{ color: key.isActive ? '#35da9a' : '#ff6b6b' }}>
-                                {key.isActive ? 'Active' : 'Inactive'}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="text-gray-500 mb-1">Usage</p>
-                              <p className="text-gray-400">{key.usageCount} requests</p>
-                            </div>
-                            <div>
-                              <p className="text-gray-500 mb-1">Last Used</p>
-                              <p className="text-gray-400">{key.lastUsed ? formatDate(key.lastUsed) : 'Never'}</p>
-                            </div>
-                            <div>
-                              <p className="text-gray-500 mb-1">Created</p>
-                              <p className="text-gray-400">{formatDate(key.createdAt)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </>
                 )}
@@ -425,6 +494,19 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Payment Modal for Creating API Key */}
+      {showPaymentModal && (
+        <CreateAPIKeyWithPayment
+          onSuccess={(apiKey) => {
+            setNewKeyValue(apiKey);
+            setShowPaymentModal(false);
+            setSuccess('API key created successfully with x402 payment!');
+            fetchAPIKeys();
+          }}
+          onCancel={() => setShowPaymentModal(false)}
+        />
       )}
 
       {/* Show New Key Modal */}

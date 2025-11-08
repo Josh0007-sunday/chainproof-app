@@ -1,4 +1,4 @@
-import { web3 } from '@project-serum/anchor';
+import { web3 } from '@coral-xyz/anchor';
 import { getProgram, getProvider } from './useProgram';
 
 export const useTokenRegistry = () => {
@@ -10,14 +10,13 @@ export const useTokenRegistry = () => {
       if (!program || !provider) return false;
 
       const mintPubkey = new web3.PublicKey(mint);
-      const PROGRAM_ID = new web3.PublicKey('45gVbLLSYYcW254TFoJMXmfupM5dJaFxTLsbny2eqKWx');
 
       const [tokenEntryPda] = web3.PublicKey.findProgramAddressSync(
         [Buffer.from("token_entry"), mintPubkey.toBuffer()],
-        PROGRAM_ID
+        program.programId
       );
 
-      const account = await program.account.tokenEntry.fetchNullable(tokenEntryPda);
+      const account = await (program.account as any).tokenEntry.fetchNullable(tokenEntryPda);
       return account !== null;
     } catch (error) {
       console.error('Error checking token existence:', error);
@@ -34,11 +33,10 @@ export const useTokenRegistry = () => {
 
     const authority = window.solana.publicKey;
     const mintPubkey = new web3.PublicKey(mint);
-    const PROGRAM_ID = new web3.PublicKey('45gVbLLSYYcW254TFoJMXmfupM5dJaFxTLsbny2eqKWx');
 
     const [tokenEntryPda] = web3.PublicKey.findProgramAddressSync(
       [Buffer.from("token_entry"), mintPubkey.toBuffer()],
-      PROGRAM_ID
+      program.programId
     );
 
     // Check if token already exists
@@ -64,17 +62,16 @@ export const useTokenRegistry = () => {
   const updateTokenEntry = async (mint: string, name: string, symbol: string, ipfsHash: string) => {
     const program = getProgram();
     const provider = getProvider();
-    
+
     if (!program || !provider) throw new Error("Program or Provider not initialized");
     if (!window.solana?.publicKey) throw new Error("Wallet not connected");
 
     const authority = window.solana.publicKey;
     const mintPubkey = new web3.PublicKey(mint);
-    const PROGRAM_ID = new web3.PublicKey('45gVbLLSYYcW254TFoJMXmfupM5dJaFxTLsbny2eqKWx');
 
     const [tokenEntryPda] = web3.PublicKey.findProgramAddressSync(
       [Buffer.from("token_entry"), mintPubkey.toBuffer()],
-      PROGRAM_ID
+      program.programId
     );
 
     const tx = await program.methods

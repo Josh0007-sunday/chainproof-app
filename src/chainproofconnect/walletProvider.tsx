@@ -20,8 +20,8 @@ interface WalletProviderProps {
 
 export const ChainProofWalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     // The network can be set to 'devnet', 'testnet', or 'mainnet-beta'
-    const network = WalletAdapterNetwork.Mainnet;
-    const endpoint = useMemo(() => import.meta.env.VITE_MAINNET_RPC_URL || 'https://mainnet.helius-rpc.com/?api-key=53b061f7-82e6-4436-a39e-fe1cbfdf0394', []);
+    const network = WalletAdapterNetwork.Devnet;
+    const endpoint = useMemo(() => 'https://api.devnet.solana.com', []);
 
     const wallets = useMemo(
         () => [

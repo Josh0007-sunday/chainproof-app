@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useState, useEffect } from 'react';
 import Footer from './Footer';
+import { useTheme } from '../context/ThemeContext';
 
 interface TokenDetailsProps {
   token: {
@@ -39,6 +40,7 @@ interface TokenDetailsProps {
 
 function TokenDetails({ token }: TokenDetailsProps) {
   const navigate = useNavigate();
+  const { colors } = useTheme();
   const [priceData, setPriceData] = useState<any[]>([]);
 
   const riskLevel = token.riskAssessment?.riskLevel?.toUpperCase();
@@ -93,9 +95,9 @@ function TokenDetails({ token }: TokenDetailsProps) {
   }, [token.jupiterData?.usdPrice]);
 
   return (
-    <div className="text-white" style={{ backgroundColor: '#0e0d13' }}>
+    <div style={{ backgroundColor: colors.background, color: colors.text }}>
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-3 sm:py-4">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 mb-3 sm:mb-4 text-sm sm:text-base text-gray-400 hover:text-white transition">
+        <button onClick={() => navigate(-1)} className="flex items-center gap-2 mb-3 sm:mb-4 text-sm sm:text-base transition hover:opacity-70" style={{ color: colors.textSecondary }}>
           <FaArrowLeft className="text-sm" />
           <span className="text-sm sm:text-base">Back</span>
         </button>
@@ -116,19 +118,20 @@ function TokenDetails({ token }: TokenDetailsProps) {
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center">
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold truncate">{token.tokenInfo?.name || 'Token Name'}</h1>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold truncate" style={{ color: colors.text }}>{token.tokenInfo?.name || 'Token Name'}</h1>
               {token.tokenInfo?.isVerified && (
-                <FaCheckCircle className="ml-2 text-base sm:text-lg lg:text-xl flex-shrink-0" style={{ color: '#35da9a' }} />
+                <FaCheckCircle className="ml-2 text-base sm:text-lg lg:text-xl flex-shrink-0" style={{ color: colors.primary }} />
               )}
             </div>
-            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 mt-2 text-xs sm:text-sm flex-wrap" style={{ color: '#6b7280' }}>
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 mt-2 text-xs sm:text-sm flex-wrap" style={{ color: colors.textTertiary }}>
               <span>socials:</span>
               {token.jupiterData?.website && (
                 <a
                   href={token.jupiterData.website}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center hover:text-white transition"
+                  className="flex items-center transition hover:opacity-70"
+                  style={{ color: colors.textSecondary }}
                 >
                   <FaGlobe className="mr-1 text-xs sm:text-sm" /> <span>Website</span>
                 </a>
@@ -138,7 +141,8 @@ function TokenDetails({ token }: TokenDetailsProps) {
                   href={token.jupiterData.twitter}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center hover:text-white transition"
+                  className="flex items-center transition hover:opacity-70"
+                  style={{ color: colors.textSecondary }}
                 >
                   <FaTwitter className="mr-1 text-xs sm:text-sm" /> <span>Twitter</span>
                 </a>
@@ -148,91 +152,91 @@ function TokenDetails({ token }: TokenDetailsProps) {
         </div>
 
         {/* Live Price Chart */}
-        <div className="rounded-lg p-4 sm:p-6 mb-4" style={{ backgroundColor: '#181824', borderColor: '#252538ff', borderWidth: '1px' }}>
+        <div className="rounded-lg p-4 sm:p-6 mb-4" style={{ backgroundColor: colors.cardBg, borderColor: colors.border, borderWidth: '1px' }}>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-base font-bold">Live Price Chart (24H)</h3>
+            <h3 className="text-base font-bold" style={{ color: colors.text }}>Live Price Chart (24H)</h3>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-xs text-gray-400">Live</span>
+              <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: colors.success }}></div>
+              <span className="text-xs" style={{ color: colors.textSecondary }}>Live</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={priceData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#252538" />
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
               <XAxis
                 dataKey="time"
-                stroke="#6b7280"
-                tick={{ fill: '#6b7280', fontSize: 12 }}
+                stroke={colors.textTertiary}
+                tick={{ fill: colors.textTertiary, fontSize: 12 }}
                 interval="preserveStartEnd"
               />
               <YAxis
-                stroke="#6b7280"
-                tick={{ fill: '#6b7280', fontSize: 12 }}
+                stroke={colors.textTertiary}
+                tick={{ fill: colors.textTertiary, fontSize: 12 }}
                 tickFormatter={(value) => `$${value.toFixed(6)}`}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#0e0d13',
-                  border: '1px solid #252538',
+                  backgroundColor: colors.cardBg,
+                  border: `1px solid ${colors.border}`,
                   borderRadius: '8px',
-                  color: '#ffffff'
+                  color: colors.text
                 }}
                 formatter={(value: any) => [`$${value.toFixed(8)}`, 'Price']}
               />
               <Line
                 type="monotone"
                 dataKey="price"
-                stroke="#35da9a"
+                stroke={colors.primary}
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 6, fill: '#35da9a' }}
+                activeDot={{ r: 6, fill: colors.primary }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
         {/* Full Width Token Details Card */}
-        <div className="rounded-lg p-4 sm:p-6" style={{ backgroundColor: '#181824', borderColor: '#252538ff', borderWidth: '1px' }}>
+        <div className="rounded-lg p-4 sm:p-6" style={{ backgroundColor: colors.cardBg, borderColor: colors.border, borderWidth: '1px' }}>
           {/* Risk Score Section */}
-          <div className="pb-6" style={{ borderBottomColor: '#252538ff', borderBottomWidth: '1px' }}>
-            <h3 className="text-base font-bold mb-4">Risk Score</h3>
+          <div className="pb-6" style={{ borderBottomColor: colors.border, borderBottomWidth: '1px' }}>
+            <h3 className="text-base font-bold mb-4" style={{ color: colors.text }}>Risk Score</h3>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <p className={`text-5xl font-bold ${riskColor}`}>
                   {token.riskAssessment?.riskLevel || 'N/A'}
                 </p>
-                <p className="text-sm mt-2" style={{ color: '#6b7280' }}>
+                <p className="text-sm mt-2" style={{ color: colors.textTertiary }}>
                   Score: {token.riskAssessment?.riskScore ?? '--'}/100
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p style={{ color: '#6b7280' }} className="text-sm mb-1">Price</p>
-                  <p className="font-bold text-lg">
+                  <p style={{ color: colors.textTertiary }} className="text-sm mb-1">Price</p>
+                  <p className="font-bold text-lg" style={{ color: colors.text }}>
                     {token.jupiterData?.usdPrice
                       ? `$${token.jupiterData.usdPrice.toFixed(6)}`
                       : 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p style={{ color: '#6b7280' }} className="text-sm mb-1">Holders</p>
-                  <p className="font-bold text-lg">
+                  <p style={{ color: colors.textTertiary }} className="text-sm mb-1">Holders</p>
+                  <p className="font-bold text-lg" style={{ color: colors.text }}>
                     {token.jupiterData?.holderCount
                       ? token.jupiterData.holderCount.toLocaleString()
                       : 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p style={{ color: '#6b7280' }} className="text-sm mb-1">Liquidity</p>
-                  <p className="font-bold text-lg">
+                  <p style={{ color: colors.textTertiary }} className="text-sm mb-1">Liquidity</p>
+                  <p className="font-bold text-lg" style={{ color: colors.text }}>
                     {token.jupiterData?.liquidity
                       ? `$${token.jupiterData.liquidity.toLocaleString()}`
                       : 'N/A'}
                   </p>
                 </div>
                 <div>
-                  <p style={{ color: '#6b7280' }} className="text-sm mb-1">Market Cap</p>
-                  <p className="font-bold text-lg">
+                  <p style={{ color: colors.textTertiary }} className="text-sm mb-1">Market Cap</p>
+                  <p className="font-bold text-lg" style={{ color: colors.text }}>
                     {token.jupiterData?.mcap
                       ? `$${token.jupiterData.mcap.toLocaleString()}`
                       : 'N/A'}
@@ -243,20 +247,20 @@ function TokenDetails({ token }: TokenDetailsProps) {
           </div>
 
           {/* Classification Section */}
-          <div className="py-6" style={{ borderBottomColor: '#252538ff', borderBottomWidth: '1px' }}>
-            <h3 className="text-base font-bold mb-4">Classification</h3>
+          <div className="py-6" style={{ borderBottomColor: colors.border, borderBottomWidth: '1px' }}>
+            <h3 className="text-base font-bold mb-4" style={{ color: colors.text }}>Classification</h3>
             <div className="flex flex-wrap items-center gap-8">
               <div>
-                <p className="text-3xl font-bold">{token.classification?.type || 'N/A'}</p>
+                <p className="text-3xl font-bold" style={{ color: colors.text }}>{token.classification?.type || 'N/A'}</p>
               </div>
               <div className="flex gap-6 text-base">
                 <div>
-                  <span style={{ color: '#6b7280' }}>Utility: </span>
-                  <span className="font-bold text-lg">{token.classification?.utilityScore}%</span>
+                  <span style={{ color: colors.textTertiary }}>Utility: </span>
+                  <span className="font-bold text-lg" style={{ color: colors.text }}>{token.classification?.utilityScore}%</span>
                 </div>
                 <div>
-                  <span style={{ color: '#6b7280' }}>Meme: </span>
-                  <span className="font-bold text-lg">{token.classification?.memeScore}%</span>
+                  <span style={{ color: colors.textTertiary }}>Meme: </span>
+                  <span className="font-bold text-lg" style={{ color: colors.text }}>{token.classification?.memeScore}%</span>
                 </div>
               </div>
             </div>
@@ -264,21 +268,21 @@ function TokenDetails({ token }: TokenDetailsProps) {
 
           {/* Score Breakdown Section */}
           <div className="pt-6">
-            <h3 className="text-base font-bold mb-4">Score Breakdown</h3>
+            <h3 className="text-base font-bold mb-4" style={{ color: colors.text }}>Score Breakdown</h3>
             {token.riskAssessment?.detailedScores ? (
               <div className="space-y-3">
                 {Object.entries(token.riskAssessment.detailedScores).map(
                   ([key, value]: [string, any]) => (
                     <div key={key}>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="capitalize text-sm font-medium text-white">{key}</span>
-                        <span className="text-sm font-bold" style={{ color: '#35da9a' }}>{value.score}/100</span>
+                        <span className="capitalize text-sm font-medium" style={{ color: colors.text }}>{key}</span>
+                        <span className="text-sm font-bold" style={{ color: colors.primary }}>{value.score}/100</span>
                       </div>
-                      <div className="w-full h-2 rounded-full" style={{ backgroundColor: '#252538' }}>
+                      <div className="w-full h-2 rounded-full" style={{ backgroundColor: colors.backgroundTertiary }}>
                         <div
                           className="h-2 rounded-full transition-all duration-500"
                           style={{
-                            backgroundColor: '#35da9a',
+                            backgroundColor: colors.primary,
                             width: `${value.score}%`
                           }}
                         ></div>
@@ -288,7 +292,7 @@ function TokenDetails({ token }: TokenDetailsProps) {
                 )}
               </div>
             ) : (
-              <p className="text-sm" style={{ color: '#6b7280' }}>No detailed scores available.</p>
+              <p className="text-sm" style={{ color: colors.textTertiary }}>No detailed scores available.</p>
             )}
           </div>
         </div>

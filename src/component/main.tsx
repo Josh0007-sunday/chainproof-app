@@ -5,6 +5,7 @@ import tokens from './tokens/token.json';
 import { useNavigate } from 'react-router-dom';
 import { getProgram, getReadOnlyProgram } from '../chainproofconnect/useProgram';
 import { FaSearch } from 'react-icons/fa';
+import { useTheme } from '../context/ThemeContext';
 
 //@ts-ignore
 interface AnalysisResult {
@@ -47,9 +48,10 @@ function Main() {
   const [verifiedTokens, setVerifiedTokens] = useState<any[]>([]);
   const [verifiedLoading, setVerifiedLoading] = useState(true);
   const searchRef = useRef<HTMLDivElement>(null);
+  const { colors } = useTheme();
 
-  // Duplicate tokens for infinite scroll effect
-  const infiniteTokens = [...verifiedTokens, ...verifiedTokens, ...verifiedTokens];
+  // Use unique tokens only (no duplicates)
+  const infiniteTokens = verifiedTokens;
 
   useEffect(() => {
     const fetchVerifiedTokens = async () => {
@@ -141,21 +143,10 @@ function Main() {
   };
 
   return (
-    <div className="min-h-screen text-white flex flex-col" style={{ backgroundColor: '#0e0d13' }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: colors.background, color: colors.text }}>
       <Navbar />
 
       <style>{`
-        @keyframes scroll-left {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-33.333%);
-          }
-        }
-        .animate-scroll {
-          animation: scroll-left 30s linear infinite;
-        }
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
         }
@@ -170,17 +161,17 @@ function Main() {
 
           {/* Logo and BETA */}
           <div className="flex flex-col items-center mb-2">
-            <h1 className="text-5xl sm:text-6xl font-light tracking-wide mb-2" style={{ color: '#35da9a', fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+            <h1 className="text-5xl sm:text-6xl font-light tracking-wide mb-2" style={{ color: colors.primary, fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
               ChainProof
             </h1>
-            <span className="text-xs font-light tracking-widest" style={{ color: '#6b7280' }}>
+            <span className="text-xs font-light tracking-widest" style={{ color: colors.textTertiary }}>
               BETA
             </span>
           </div>
 
           {/* Verified Tokens Label */}
           <div className="w-full max-w-2xl">
-            <p className="text-xs mb-2 text-left" style={{ color: '#9ca3af' }}>
+            <p className="text-xs mb-2 text-left" style={{ color: colors.textSecondary }}>
               Verified Token:
             </p>
           </div>
@@ -190,25 +181,25 @@ function Main() {
             {verifiedLoading ? (
               <div className="flex gap-2 overflow-hidden">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="flex items-center gap-1.5 px-2 py-1 rounded-full animate-pulse flex-shrink-0" style={{ backgroundColor: '#181824' }}>
-                    <div className="w-4 h-4 rounded-full bg-gray-700"></div>
-                    <div className="h-2 bg-gray-700 rounded w-8"></div>
+                  <div key={i} className="flex items-center gap-1.5 px-2 py-1 rounded-full animate-pulse flex-shrink-0" style={{ backgroundColor: colors.backgroundSecondary }}>
+                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: colors.backgroundTertiary }}></div>
+                    <div className="h-2 rounded w-8" style={{ backgroundColor: colors.backgroundTertiary }}></div>
                   </div>
                 ))}
               </div>
             ) : verifiedTokens.length === 0 ? (
-              <div className="text-left text-gray-400 py-2">
+              <div className="text-left py-2" style={{ color: colors.textSecondary }}>
                 <p className="text-xs">No verified tokens yet</p>
               </div>
             ) : (
-              <div className="relative">
-                <div className="flex gap-2 animate-scroll">
+              <div className="relative overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2">
                   {infiniteTokens.map((token, index) => (
                     <div
                       key={`${token.publicKey.toString()}-${index}`}
                       onClick={() => handleVerifiedTokenClick(token)}
                       className="flex items-center gap-1.5 px-2 py-1 rounded-full cursor-pointer transition hover:opacity-80 flex-shrink-0"
-                      style={{ backgroundColor: '#181824', borderColor: '#252538', borderWidth: '1px' }}
+                      style={{ backgroundColor: colors.cardBg, borderColor: colors.border, borderWidth: '1px' }}
                     >
                       {token.ipfsData?.tokenInfo?.icon ? (
                         <img
@@ -226,7 +217,7 @@ function Main() {
                           </span>
                         </div>
                       )}
-                      <span className="text-xs text-white whitespace-nowrap">
+                      <span className="text-xs whitespace-nowrap" style={{ color: colors.text }}>
                         {token.account.name}
                       </span>
                     </div>
@@ -242,7 +233,7 @@ function Main() {
             <div className="relative" ref={searchRef}>
               <div
                 className="p-3 rounded-lg flex items-center gap-3 cursor-text"
-                style={{ backgroundColor: '#181824', borderColor: '#252538', borderWidth: '1px' }}
+                style={{ backgroundColor: colors.cardBg, borderColor: colors.border, borderWidth: '1px' }}
                 onClick={() => {
                   const input = document.getElementById('search-input') as HTMLInputElement;
                   if (input) {
@@ -251,12 +242,13 @@ function Main() {
                   }
                 }}
               >
-                <FaSearch className="text-gray-400 text-base flex-shrink-0" />
+                <FaSearch className="text-base flex-shrink-0" style={{ color: colors.textTertiary }} />
                 <input
                   id="search-input"
                   type="text"
                   placeholder="Search by name, symbol, or enter token address..."
-                  className="w-full bg-transparent p-2 text-sm text-white outline-none"
+                  className="w-full bg-transparent p-2 text-sm outline-none"
+                  style={{ color: colors.text }}
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -269,7 +261,7 @@ function Main() {
               {showDropdown && (
                 <div
                   className="absolute w-full mt-2 rounded-lg overflow-hidden z-10 shadow-lg"
-                  style={{ backgroundColor: '#181824', borderColor: '#252538', borderWidth: '1px' }}
+                  style={{ backgroundColor: colors.cardBg, borderColor: colors.border, borderWidth: '1px' }}
                 >
                   <div className="max-h-80 overflow-y-auto">
                     {filteredSearchResults.length > 0 ? (
@@ -277,8 +269,8 @@ function Main() {
                         <div
                           key={token.address}
                           onClick={() => handleSearchSelect(token.address)}
-                          className="p-3 cursor-pointer transition hover:bg-opacity-80 border-b"
-                          style={{ backgroundColor: '#181824', borderColor: '#252538' }}
+                          className="p-3 cursor-pointer transition hover:opacity-80 border-b"
+                          style={{ backgroundColor: colors.cardBg, borderColor: colors.border }}
                         >
                           <div className="flex items-center gap-3">
                             {token.icon ? (
@@ -298,10 +290,10 @@ function Main() {
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
-                              <div className="text-white font-medium text-sm">{token.name}</div>
-                              <div className="text-gray-400 text-xs">{token.symbol}</div>
+                              <div className="font-medium text-sm" style={{ color: colors.text }}>{token.name}</div>
+                              <div className="text-xs" style={{ color: colors.textSecondary }}>{token.symbol}</div>
                             </div>
-                            <div className="text-gray-500 text-xs font-mono">
+                            <div className="text-xs font-mono" style={{ color: colors.textTertiary }}>
                               {token.address.slice(0, 4)}...{token.address.slice(-4)}
                             </div>
                           </div>
@@ -312,16 +304,16 @@ function Main() {
                         onClick={() => handleSearchSelect(searchTerm)}
                         className="p-3 cursor-pointer hover:opacity-80"
                       >
-                        <div className="text-white text-sm">
+                        <div className="text-sm" style={{ color: colors.text }}>
                           Search for address: {searchTerm.slice(0, 15)}...
                         </div>
                       </div>
                     ) : searchTerm.length > 0 ? (
-                      <div className="p-3 text-gray-400 text-xs">
+                      <div className="p-3 text-xs" style={{ color: colors.textSecondary }}>
                         No tokens found
                       </div>
                     ) : (
-                      <div className="p-3 text-gray-400 text-xs">
+                      <div className="p-3 text-xs" style={{ color: colors.textSecondary }}>
                         Start typing to search for tokens...
                       </div>
                     )}
@@ -336,17 +328,17 @@ function Main() {
             {/* Learn Demo Card */}
             <div
               className="p-5 rounded-lg transition hover:opacity-90 cursor-pointer"
-              style={{ backgroundColor: '#181824', borderColor: '#252538', borderWidth: '1px' }}
+              style={{ backgroundColor: colors.cardBg, borderColor: colors.border, borderWidth: '1px' }}
               onClick={() => window.open('https://docs.chainproof.io', '_blank')}
             >
               <div className="flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#35da9a20' }}>
-                  <svg className="w-7 h-7" style={{ color: '#35da9a' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: `${colors.primary}20` }}>
+                  <svg className="w-7 h-7" style={{ color: colors.primary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
                 </div>
-                <h3 className="text-white font-semibold text-base mb-2">Learn & Demo</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">
+                <h3 className="font-semibold text-base mb-2" style={{ color: colors.text }}>Learn & Demo</h3>
+                <p className="text-xs leading-relaxed" style={{ color: colors.textSecondary }}>
                   Explore our documentation and try the demo to understand how ChainProof works.
                 </p>
               </div>
@@ -355,17 +347,17 @@ function Main() {
             {/* Encryption Project Card */}
             <div
               className="p-5 rounded-lg transition hover:opacity-90 cursor-pointer"
-              style={{ backgroundColor: '#181824', borderColor: '#252538', borderWidth: '1px' }}
+              style={{ backgroundColor: colors.cardBg, borderColor: colors.border, borderWidth: '1px' }}
               onClick={() => window.open('https://github.com/chainproof', '_blank')}
             >
               <div className="flex flex-col items-center text-center">
-                <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: '#35da9a20' }}>
-                  <svg className="w-7 h-7" style={{ color: '#35da9a' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-14 h-14 rounded-lg flex items-center justify-center mb-4" style={{ backgroundColor: `${colors.primary}20` }}>
+                  <svg className="w-7 h-7" style={{ color: colors.primary }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <h3 className="text-white font-semibold text-base mb-2">Encryption & Security</h3>
-                <p className="text-gray-400 text-xs leading-relaxed">
+                <h3 className="font-semibold text-base mb-2" style={{ color: colors.text }}>Encryption & Security</h3>
+                <p className="text-xs leading-relaxed" style={{ color: colors.textSecondary }}>
                   Learn about our encryption and security features powered by IPFS.
                 </p>
               </div>
